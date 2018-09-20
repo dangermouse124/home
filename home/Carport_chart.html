@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#gchart {
+	display: none;
+	width: 100%;
+	min-height: 450px;
+
+}
+
+.btn {
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 12px 16px;
+    font-size: 16px;
+    cursor: pointer;
+	border-radius: 12px;
+}
+
+/* Darker background on mouse-over */
+.btn:hover {
+    background-color: orange !important;
+}
+</style>
+	<title>Carport Temperature</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script type="text/javascript">
+	
+	google.charts.load('current', {'packages':['corechart']});
+	google.charts.setOnLoadCallback(getData());
+	
+	function getData() {
+		var daystoget = document.getElementById('dayNum').value;
+		var days = {"daystoget":daystoget};
+		drawChart(days);
+	}
+	
+    function drawChart(days) {
+		
+		var jsonData = $.ajax({
+		  type: "POST",
+          url: "Carport_chart.php",
+		  data: days,
+          dataType: "json",
+          async: false
+          }).responseText;
+		  
+		var data = new google.visualization.DataTable(jsonData);
+
+		var options = {
+		 title:'Carport',
+		 color:'black',
+		 hAxis: {title: 'Ten minute data'},
+		 hAxis: {showTextEvery: 18, textStyle: {color: 'white'}},
+		 vAxis: {textStyle: {color: 'white'}},
+		 backgroundColor:'black',
+		 colors:['orange'],
+		 legend:{position:'top', textStyle: {color: 'white'}},
+		 chartArea:{width:'95%', height:'80%'}
+		};
+		
+		$('#gchart').show();
+		var chart = new google.visualization.AreaChart(document.getElementById('gchart'));
+		chart.draw(data, options);
+	}
+	
+	</script>
+
+</head>  
+<body>
+	<div class="w3-container"> 
+		<h1 class="w3-container w3-center w3-light-grey">Carport Temperature</h1>
+
+		<br>
+	</div>
+
+
+	<div id="gchart">Loading..</div><br>
+	
+	<div class="w3-container"> 
+		<div class="w3-card-4 w3-dark-grey w3-padding" style="width:100%">
+			<p>Select Number of days then click Draw.</p>
+			<select name="dayNum" id="dayNum">
+				<option value= 1>1 Day</option>
+				<option value= 2>2 Days</option>
+				<option value= 3>3 Days</option>
+				<option value= 5>5 Days</option>
+			</select>
+			<br><br>
+			<button class="btn" onclick="getData()"><i class="fa fa-thermometer"></i> Draw</button>
+			<br><br>
+		</div>
+	</div>
+</body>
+</html>

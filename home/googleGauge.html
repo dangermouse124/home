@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<style>
+#status
+{
+background-color:red;
+font-size:4;
+font-weight:bold;
+color:white;
+line-height:140%;
+}
+body {
+	background-color:black;
+}
+</style>
+
+<head>
+<style>
+.slidecontainer {
+    width: 100%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #E53935;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #E53935;
+    cursor: pointer;
+}
+</style>
+  <title>WebTemp piZero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript">
+  </script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+  	var mqtt;
+	var reconnectTimeout = 2000;
+	var host="192.168.1.25";
+	var port=9001;
+	
+	google.charts.load('current', {'packages':['gauge']});
+    google.charts.setOnLoadCallback(drawGauge);
+
+    var gaugeOptions = {min: 0, max: 40, greenFrom: 18, greenTo:25, yellowFrom: 25, yellowTo: 33,
+      redFrom: 33, redTo: 40, minorTicks: 5};
+    var gauge;
+
+    function drawGauge() {
+		
+      gaugeData = new google.visualization.DataTable();
+      gaugeData.addColumn('number', 'Carport');
+      gaugeData.addColumn('number', 'Love');
+	  gaugeData.addRows(2)
+      //gaugeData.addRows(2);
+      gaugeData.setCell(0, 0, 0);
+      gaugeData.setCell(0, 1, 40);
+	  
+      gauge = new google.visualization.Gauge(document.getElementById('gauge_div'));
+      gauge.draw(gaugeData, gaugeOptions);
+	  MQTTconnect();
+    }
+
+    function changeTemp(temp) {
+      gaugeData.setValue(0, 0, temp);
+      //gaugeData.setValue(0, 1, gaugeData.getValue(0, 1) + dir * 20);
+      gauge.draw(gaugeData, gaugeOptions);
+    }
+	
+	function onConnect() {
+		console.log("Connected ");
+		document.getElementById("status").innerHTML = "Connected";
+		document.getElementById("status").style.backgroundColor = "green";
+		document.getElementById("broker").innerHTML ="Connected to "+host +" on port "+port;
+		mqtt.subscribe("piZero/temp");
+		
+		}
+		
+	function onFailure(message) {
+		console.log("Connection Attempt to Host "+host+"Failed");
+		document.getElementById("status").innerHTML = "Connection Lost";
+		document.getElementById("messages").innerHTML ="Connection Lost";
+		setTimeout(MQTTconnect, reconnectTimeout);
+		}
+		
+	function onConnectionLost(){
+		console.log("connection lost");
+		document.getElementById("status").innerHTML = "Connection Lost";
+		document.getElementById("messages").innerHTML ="Connection Lost";
+		}
+	
+	function onMessageArrived(msg){
+		out_msg="Message received: "+msg.payloadString+"<br>";
+		out_msg=out_msg+"Message received Topic: "+msg.destinationName;
+		console.log(out_msg);
+		document.getElementById("messages").innerHTML =out_msg;
+		changeTemp(msg.payloadString);
+		checkCold(msg.payloadString);
+		}
+		
+	function checkCold(temp){
+		if (temp < 10) {
+			document.getElementById("coldstatus").innerHTML ="Yep it's COLD!";
+			document.getElementById('coldstatus').className = 'w3-blue';
+			}
+		else if (temp <18) {
+			document.getElementById("coldstatus").innerHTML ="Cool but OK";
+			document.getElementById('coldstatus').className = 'w3-green';
+			}
+		else {
+			document.getElementById("coldstatus").innerHTML ="Just right";
+			document.getElementById('coldstatus').className = 'w3-yellow';
+			}
+		}
+		
+		
+	function MQTTconnect() {
+		var d = new Date();
+		var timenow = d.getTime();
+		var clientId = String(timenow)
+		console.log("connecting to "+ host +" "+ port);
+		mqtt = new Paho.MQTT.Client(host,port,clientId);
+	
+		var options = {
+			timeout: 3,
+			onSuccess: onConnect,
+			onFailure: onFailure,
+			};
+		mqtt.onMessageArrived = onMessageArrived		
+		mqtt.connect(options); //connect
+		return;
+		}
+
+    function showValue(love) {
+      gaugeData.setValue(0, 1, love);
+	  document.getElementById("loverange").innerHTML = love;
+      gauge.draw(gaugeData, gaugeOptions);
+    }		
+
+  </script>
+ </head>
+ <body>
+ <div class="w3-row">
+	<div class="w3-container w3-quarter w3-hide-medium"></div>
+	<div class="w3-container w3-half w3-dark-grey w3-center">
+		<div class="w3-card-4">
+			<h2>Websockets Temperature Display</h2>
+			<div id="status">Connection Status: Not Connected</div>
+			<br>
+			<div class="slidecontainer">
+				<input type="range" min="0" max="40" value="40" class="slider" id="myRange" oninput="showValue(this.value)">
+				<p>Love: <span id="loverange"></span></p>
+			</div>
+			<div id="gauge_div" style="width:280px; height: 140px;"></div>
+			<p id="coldstatus" class="w3-grey"></p>
+			<p id="broker"></p>		
+			<h2>Messages:</h2>
+			<div class="w3-container w3-light-grey">
+				<p id="messages"></p>
+			</div>
+			<br>
+		</div>
+		<br>
+	</div>
+</div>
+
+</body>
+</html>
+<!--
+
+  <div id="gauge_div" style="width:280px; height: 140px;"></div>
+  <br>
+  <p id="messages"></p>
+  <div id="status">Connection Status: Not Connected</div>
+  <p id="broker"></p>
+  <input type="button" value="Connect" onclick="MQTTconnect()" />
+  
+  			<div class="w3-section w3-center">
+				<button onclick=MQTTconnect() class="w3-button w3-circle w3-green" style="width:60px;height:60px">Go</button>
+			</div>
+			<p>test</p>
+  -->
