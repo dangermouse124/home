@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<style>
+body {
+	background-color: #778899;
+	background-image: url("/pics/background2.jpg");
+    background-repeat: no-repeat;
+    background-position: right top;
+	background-attachment: fixed;
+}
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    top: 150%;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+</style>
+
+<head>
+  <title>Homepage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="icon" sizes="192x192" href="icon192x192.png"> <link rel="shortcut icon" type="image/png" href="icon64x64.png"> <link rel="apple-touch-icon" href="icon120x120.png">
+</head>
+<body>
+<!-- topbar -->
+<div class="w3-bar w3-grey w3-xlarge">
+	<a href="about:blank" target="mainframe" title="Home" class="w3-bar-item w3-button w3-blue">
+	<i class="fa fa-home"></i></a>
+	<a href="/production/googleGauge.html" target="mainframe" title="Carport Temperature" class="w3-bar-item w3-button">
+	<i class="fa fa-thermometer-2"></i></a>
+	<a href="/production/web_gpio.html" target="mainframe" title="Carport Temperature" class="w3-bar-item w3-button">
+	<i class="fa fa-power-off"></i></a>	
+	<a href="http://192.168.1.26:8765" target="mainframe" title="Carport Camera" class="w3-bar-item w3-button">
+	<i class="fa fa-camera"></i></a> 
+	<a href="http://192.168.1.21:8765" target="mainframe" title="Shed Camera" class="w3-bar-item w3-button">
+	<i class="fa fa-camera"></i></a>
+	<a href="http://192.168.1.25/production/fronius_power.html" target="mainframe" title="Solar" class="w3-bar-item w3-button">
+	<i class="fa fa-sun-o"></i></a>
+	<a href="http://192.168.1.25/phpmyadmin/" target="_blank" title="Database" class="w3-bar-item w3-button">
+	<i class="fa fa-database"></i></a>
+	<a href="/production/Carport_chart.html" target="mainframe" title="Carport chart" class="w3-bar-item w3-button">
+	<i class="fa fa-line-chart"></i></a>
+	<a href="/dev" target="_blank" title="Dev" class="w3-bar-item w3-button">
+	<i class="fa fa-gear"></i></a>
+</div>
+
+
+<div class="w3-card-4">
+	<iframe name="mainframe" height="1400px" width="100%"></iframe>
+</div>
+
+
+
+
+<!--
+<div class="w3-main w3-container" style="margin-left:70px;margin-top:30px;margin-right:70px;">
+</div>
+style="border:none" 
+
+
+-->
+	</body>	
+</html>
